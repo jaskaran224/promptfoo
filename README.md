@@ -40,11 +40,13 @@ npm run eval
 npm run eval:view
 ```
 
-The generated suite is slower and uses the model for attack generation and grading:
+The generated suite is slower. Promptfoo's hosted endpoints generate attacks and grade target responses; Gemma remains only the chatbot target:
 
 ```bash
 npm run redteam
 ```
+
+Hosted red teaming sends the configured purpose, generated prompts, target responses, and grading criteria to Promptfoo's service. It does not send `OPENROUTER_API_KEY`. The target invocation itself still runs in the CI worker through `eval/provider.ts`.
 
 Evaluation files can contain prompts and model responses. Treat them as sensitive artifacts and do not use real customer data in tests.
 
