@@ -9,9 +9,6 @@
     "cli": "npm run build && node dist/src/cli.js",
     "build": "tsc",
     "test": "npm run build && node --test dist/tests/**/*.test.js",
-    "preeval": "npm run build",
-    "eval": "promptfoo eval -c promptfooconfig.yaml --no-cache --output evaluations/latest.json --output evaluations/latest.html",
-    "eval:view": "promptfoo view",
     "preredteam": "npm run build && node -e \"require('node:fs').mkdirSync('evaluations', { recursive: true })\"",
     "redteam": "promptfoo redteam run -c promptfooconfig.redteam.yaml --remote --output redteam-latest.json",
     "check": "npm test"
