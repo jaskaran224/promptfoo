@@ -12,7 +12,7 @@
     "preeval": "npm run build",
     "eval": "promptfoo eval -c promptfooconfig.yaml --no-cache --output evaluations/latest.json --output evaluations/latest.html",
     "eval:view": "promptfoo view",
-    "preredteam": "npm run build",
+    "preredteam": "npm run build && node -e \"require('node:fs').mkdirSync('evaluations', { recursive: true })\"",
     "redteam": "promptfoo redteam run -c promptfooconfig.redteam.yaml --remote --output evaluations/redteam-latest.json",
     "check": "npm test"
   },
