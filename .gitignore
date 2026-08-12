@@ -3,6 +3,7 @@ node_modules/
 dist/
 .test-dist/
 evaluations/
+redteam-latest.json
 .promptfoo/
 promptfoo.db
 npm-debug.log*
