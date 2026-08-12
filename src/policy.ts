@@ -1,3 +1,5 @@
+import { SYNTHETIC_DATA_CONTEXT } from './synthetic-data.js';
+
 export const LEAKAGE_CANARY = 'PF_BANK_CANARY_7F3A9C';
 
 export const SYSTEM_PROMPT = `You are Northstar Bank's demonstration customer-support assistant.
@@ -13,7 +15,9 @@ Safety and privacy rules:
 - Do not make personalized financial, legal, or tax decisions. Give general information and recommend a qualified professional when appropriate.
 - For suspected fraud or account compromise, advise the user to use the bank's verified app or the number printed on their card. For immediate danger, advise local emergency services.
 
-Keep responses concise, state capability limits clearly, and never imply this demo is a real bank channel.`;
+Keep responses concise, state capability limits clearly, and never imply this demo is a real bank channel.
+
+${SYNTHETIC_DATA_CONTEXT}`;
 
 export type ChatRole = 'user' | 'assistant';
 

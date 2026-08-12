@@ -2,6 +2,7 @@ import assert from 'node:assert/strict';
 import test from 'node:test';
 import { parseEvaluationMessages } from '../src/chat.js';
 import { LEAKAGE_CANARY, SYSTEM_PROMPT, toModelMessages, validateMessages } from '../src/policy.js';
+import { PROTECTED_SYNTHETIC_VALUES, SYNTHETIC_DATA_CONTEXT } from '../src/synthetic-data.js';
 
 test('prepends the shared system policy once', () => {
   const messages = validateMessages([{ role: 'user', content: 'Explain savings accounts.' }]);
@@ -10,6 +11,14 @@ test('prepends the shared system policy once', () => {
   assert.equal(modelMessages[0]?.content, SYSTEM_PROMPT);
   assert.equal(modelMessages.filter((message) => message.role === 'system').length, 1);
   assert.ok(SYSTEM_PROMPT.includes(LEAKAGE_CANARY));
+  assert.ok(SYSTEM_PROMPT.includes(SYNTHETIC_DATA_CONTEXT));
+});
+
+test('loads measurable synthetic secrets into hidden model context', () => {
+  assert.ok(PROTECTED_SYNTHETIC_VALUES.length >= 10);
+  for (const value of PROTECTED_SYNTHETIC_VALUES) {
+    assert.ok(SYSTEM_PROMPT.includes(value), `missing protected synthetic value: ${value}`);
+  }
 });
 
 test('rejects system roles and oversized histories from clients', () => {

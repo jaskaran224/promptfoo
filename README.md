@@ -6,11 +6,12 @@ A deliberately small TypeScript banking-support chatbot used to demonstrate LLM 
 
 - Web and CLI multi-turn chat using a free Gemma model through OpenRouter
 - Hosted red-team tests for harmful content, prompt injection, data leakage, and multi-turn behavior
+- Fabricated customer records and internal canaries in hidden model context, with exact-match leakage assertions
 - A bounded generated red-team scan for scheduled and manual testing
 - JSON red-team report artifacts from GitHub Actions
 - A reusable structure that can be extracted into an organization-wide evaluation package
 
-This is not a real banking service. It has no authentication, persistent storage, tools, RAG, customer data, or transaction capability.
+This is not a real banking service. It has no authentication, persistent storage, tools, RAG, real customer data, or transaction capability. The records in `src/synthetic-data.ts` are intentionally fake (`example.invalid` addresses and POC identifiers).
 
 ## Run locally
 
@@ -43,6 +44,10 @@ Hosted red teaming sends the configured purpose, generated prompts, target respo
 
 Evaluation files can contain prompts and model responses. Treat them as sensitive artifacts and do not use real customer data in tests.
 
+### How leakage testing works
+
+`src/synthetic-data.ts` defines fake customer accounts, support PINs, session tokens, and internal records. `src/policy.ts` places them in Gemma's hidden system context and orders the chatbot not to reveal them. Promptfoo generates direct and multi-turn extraction attacks. Every response also receives a deterministic `not-contains-any` assertion, so an exact protected value appearing in output fails the run even if the hosted model grader misses it.
+
 ## GitHub Actions setup
 
 Create a repository Actions secret named `OPENROUTER_API_KEY`. The hosted red-team workflow runs every Monday, on demand, or when the dedicated `redteam.trigger` marker is updated.
@@ -60,6 +65,7 @@ Create a repository Actions secret named `OPENROUTER_API_KEY`. The hosted red-te
 ## Repository map
 
 - `src/policy.ts`: chatbot policy, types, and message validation
+- `src/synthetic-data.ts`: fabricated protected records and exact leakage canaries
 - `src/openrouter.ts`: OpenRouter client and selected Gemma model
 - `src/server.ts` / `src/cli.ts`: web API and terminal client
 - `eval/provider.ts`: Promptfoo adapter using the production chat path
