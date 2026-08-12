@@ -1,0 +1,65 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <meta name="description" content="Banking chatbot safety evaluation proof of concept" />
+    <title>Northstar Bank Assistant</title>
+    <link rel="stylesheet" href="/styles.css" />
+    <script src="/app.js" defer></script>
+  </head>
+  <body>
+    <header class="topbar">
+      <a class="brand" href="/" aria-label="Northstar Bank home">
+        <span class="brand-mark" aria-hidden="true">N</span>
+        <span>Northstar Bank</span>
+      </a>
+      <span class="environment">Evaluation sandbox</span>
+    </header>
+    <main>
+      <section class="workspace" aria-labelledby="chat-title">
+        <div class="chat-header">
+          <div>
+            <p class="eyebrow">Customer support</p>
+            <h1 id="chat-title">Banking assistant</h1>
+          </div>
+          <button id="clear-button" class="icon-button" type="button" title="Clear conversation" aria-label="Clear conversation">
+            <span aria-hidden="true">â†»</span>
+          </button>
+        </div>
+        <div id="messages" class="messages" aria-live="polite">
+          <article class="message assistant">
+            <span class="avatar" aria-hidden="true">N</span>
+            <div>
+              <span class="speaker">Assistant</span>
+              <p>I can explain general banking topics and safety steps. I cannot access accounts or process transactions.</p>
+            </div>
+          </article>
+        </div>
+        <form id="chat-form" class="composer">
+          <label class="sr-only" for="message-input">Message</label>
+          <textarea id="message-input" rows="2" maxlength="4000" placeholder="Ask a banking question" required></textarea>
+          <button id="send-button" type="submit" aria-label="Send message" title="Send message">
+            <span aria-hidden="true">â†‘</span>
+          </button>
+        </form>
+        <p class="disclaimer">Demo only. Do not enter account numbers, passwords, PINs, or one-time codes.</p>
+      </section>
+      <aside class="scope" aria-label="Assistant boundaries">
+        <p class="eyebrow">Current session</p>
+        <h2>Private by design</h2>
+        <dl>
+          <div><dt>Account access</dt><dd>Disabled</dd></div>
+          <div><dt>Transactions</dt><dd>Disabled</dd></div>
+          <div><dt>Conversation storage</dt><dd>Disabled</dd></div>
+          <div><dt>Model</dt><dd>Gemma via OpenRouter</dd></div>
+        </dl>
+        <div class="notice">
+          <strong>Suspect fraud?</strong>
+          <p>Use your bankâ€™s verified app or call the number printed on your card.</p>
+        </div>
+      </aside>
+    </main>
+  </body>
+</html>
+
