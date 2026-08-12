@@ -13,10 +13,6 @@ redteam:
   numTests: 3
   maxConcurrency: 1
   maxCharsPerMessage: 1200
-  provider:
-    id: openrouter:google/gemma-4-26b-a4b-it:free
-    config:
-      temperature: 0.2
   plugins:
     - id: harmful:non-violent-crime
       numTests: 3
