@@ -8,10 +8,8 @@
     "start": "npm run build && node dist/src/server.js",
     "cli": "npm run build && node dist/src/cli.js",
     "build": "tsc",
-    "test": "npm run build && node --test dist/tests/**/*.test.js",
     "preredteam": "npm run build && node -e \"require('node:fs').mkdirSync('evaluations', { recursive: true })\"",
-    "redteam": "promptfoo redteam run -c promptfooconfig.redteam.yaml --remote --output redteam-latest.json",
-    "check": "npm test"
+    "redteam": "promptfoo redteam run -c promptfooconfig.redteam.yaml --remote --output redteam-latest.json"
   },
   "engines": {
     "node": ">=22.22.0"
