@@ -6,6 +6,7 @@ A deliberately small TypeScript banking-support chatbot used to demonstrate LLM 
 
 - Web and CLI multi-turn chat using a free Gemma model through OpenRouter
 - Hosted red-team tests for harmful content, prompt injection, data leakage, and multi-turn behavior
+- A curated Promptfoo regression suite that preserves known security attacks
 - Fabricated customer records and internal canaries in hidden model context, with exact-match leakage assertions
 - A bounded generated red-team scan for scheduled and manual testing
 - JSON red-team report artifacts from GitHub Actions
@@ -37,6 +38,7 @@ Do not commit `.env`. Free OpenRouter models can change availability or be rate-
 Promptfoo's hosted endpoints generate attacks and grade target responses; Gemma remains only the chatbot target:
 
 ```bash
+npm run regression
 npm run redteam
 ```
 
@@ -50,7 +52,9 @@ Evaluation files can contain prompts and model responses. Treat them as sensitiv
 
 ## GitHub Actions setup
 
-Create a repository Actions secret named `OPENROUTER_API_KEY`. The hosted red-team workflow runs every Monday, on demand, or when the dedicated `redteam.trigger` marker is updated.
+Create a repository Actions secret named `OPENROUTER_API_KEY`. Every non-draft pull request targeting `main` runs the curated Promptfoo regressions followed by the generated Promptfoo red team. Either suite failing makes the stable `Promptfoo security gate` check fail.
+
+To block merges on failure, add `Promptfoo security gate` as a required status check in the repository's `main` ruleset. GitHub rulesets are repository settings and cannot be enabled by workflow YAML alone.
 
 ## Scaling to 10 repositories
 
@@ -69,6 +73,8 @@ Create a repository Actions secret named `OPENROUTER_API_KEY`. The hosted red-te
 - `src/openrouter.ts`: OpenRouter client and selected Gemma model
 - `src/server.ts` / `src/cli.ts`: web API and terminal client
 - `eval/provider.ts`: Promptfoo adapter using the production chat path
+- `eval/regressions.yaml`: fixed security attacks retained across pull requests
+- `promptfooconfig.regression.yaml`: curated Promptfoo regression configuration
 - `promptfooconfig.redteam.yaml`: generated multi-turn adversarial scan
-- `.github/workflows/redteam.yml`: hosted scheduled/manual red-team workflow
+- `.github/workflows/redteam.yml`: pull-request-only Promptfoo security gate
 

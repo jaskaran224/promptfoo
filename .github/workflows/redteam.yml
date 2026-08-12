@@ -1,21 +1,23 @@
-name: Scheduled chatbot red team
+name: Promptfoo PR security gate
 
 on:
-  workflow_dispatch:
-  push:
+  pull_request:
     branches: [main]
-    paths:
-      - 'redteam.trigger'
-  schedule:
-    - cron: '0 1 * * 1'
+    types: [opened, synchronize, reopened, ready_for_review]
 
 permissions:
   contents: read
 
+concurrency:
+  group: promptfoo-pr-${{ github.event.pull_request.number }}
+  cancel-in-progress: true
+
 jobs:
-  red-team:
+  promptfoo-security-gate:
+    name: Promptfoo security gate
+    if: github.event.pull_request.draft == false
     runs-on: ubuntu-latest
-    timeout-minutes: 45
+    timeout-minutes: 60
     steps:
       - uses: actions/checkout@v5
       - uses: actions/setup-node@v4
@@ -23,20 +25,35 @@ jobs:
           node-version: '24'
           cache: npm
       - run: npm ci
-      - name: Run bounded adversarial scan
+      - name: Run Promptfoo regression and generated red-team suites
         env:
           OPENROUTER_API_KEY: ${{ secrets.OPENROUTER_API_KEY }}
           OPENROUTER_MODEL: google/gemma-4-26b-a4b-it:free
           PROMPTFOO_DISABLE_TELEMETRY: 'true'
-        run: npm run redteam
-      - name: Upload red-team report
+        shell: bash
+        run: |
+          set +e
+          npm run regression
+          regression_status=$?
+          npm run redteam
+          redteam_status=$?
+          set -e
+
+          if [ "$regression_status" -ne 0 ] || [ "$redteam_status" -ne 0 ]; then
+            echo "One or more Promptfoo suites failed. Download the reports from this run." >> "$GITHUB_STEP_SUMMARY"
+            exit 1
+          fi
+
+          echo "Both Promptfoo suites passed." >> "$GITHUB_STEP_SUMMARY"
+      - name: Upload Promptfoo reports
         if: always()
         uses: actions/upload-artifact@v4
         with:
-          name: promptfoo-redteam-${{ github.run_id }}
+          name: promptfoo-security-${{ github.run_id }}
           path: |
+            regression-latest.json
+            regression-latest.junit.xml
             redteam-latest.json
             evaluations/
           if-no-files-found: ignore
           retention-days: 30
-

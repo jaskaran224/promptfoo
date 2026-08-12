@@ -4,6 +4,8 @@ dist/
 .test-dist/
 evaluations/
 redteam-latest.json
+regression-latest.json
+regression-latest.junit.xml
 .promptfoo/
 promptfoo.db
 npm-debug.log*
