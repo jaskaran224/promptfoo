@@ -34,7 +34,9 @@ jobs:
         uses: actions/upload-artifact@v4
         with:
           name: promptfoo-redteam-${{ github.run_id }}
-          path: evaluations/
+          path: |
+            redteam-latest.json
+            evaluations/
           if-no-files-found: ignore
           retention-days: 30
 
