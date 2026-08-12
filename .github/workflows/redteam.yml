@@ -1,0 +1,36 @@
+name: Scheduled chatbot red team
+
+on:
+  workflow_dispatch:
+  schedule:
+    - cron: '0 1 * * 1'
+
+permissions:
+  contents: read
+
+jobs:
+  red-team:
+    runs-on: ubuntu-latest
+    timeout-minutes: 45
+    steps:
+      - uses: actions/checkout@v5
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '24'
+          cache: npm
+      - run: npm ci
+      - name: Run bounded adversarial scan
+        env:
+          OPENROUTER_API_KEY: ${{ secrets.OPENROUTER_API_KEY }}
+          OPENROUTER_MODEL: google/gemma-4-26b-a4b-it:free
+          PROMPTFOO_DISABLE_TELEMETRY: 'true'
+        run: npm run redteam
+      - name: Upload red-team report
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: promptfoo-redteam-${{ github.run_id }}
+          path: evaluations/
+          if-no-files-found: ignore
+          retention-days: 30
+
