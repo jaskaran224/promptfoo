@@ -2,6 +2,10 @@ name: Scheduled chatbot red team
 
 on:
   workflow_dispatch:
+  push:
+    branches: [main]
+    paths:
+      - 'redteam.trigger'
   schedule:
     - cron: '0 1 * * 1'
 
