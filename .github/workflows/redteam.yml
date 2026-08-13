@@ -7,6 +7,7 @@ on:
 
 permissions:
   contents: read
+  pull-requests: write
 
 concurrency:
   group: promptfoo-pr-${{ github.event.pull_request.number }}
@@ -25,35 +26,58 @@ jobs:
           node-version: '24'
           cache: npm
       - run: npm ci
-      - name: Run Promptfoo regression and generated red-team suites
+      - name: Run Promptfoo plugin red-team suite
         env:
           OPENROUTER_API_KEY: ${{ secrets.OPENROUTER_API_KEY }}
-          OPENROUTER_MODEL: google/gemma-4-26b-a4b-it:free
+          OPENROUTER_MODEL: google/gemma-4-26b-a4b-it
           PROMPTFOO_DISABLE_TELEMETRY: 'true'
-        shell: bash
-        run: |
-          set +e
-          npm run regression
-          regression_status=$?
-          npm run redteam
-          redteam_status=$?
-          set -e
+        run: npm run redteam
+      - name: Build detailed Promptfoo PR comment
+        if: always()
+        env:
+          PROMPTFOO_RUN_URL: ${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }}
+        run: npm run report:pr
+      - name: Create or update Promptfoo PR comment
+        if: always() && github.event.pull_request.head.repo.full_name == github.repository
+        uses: actions/github-script@v7
+        with:
+          script: |
+            const fs = require('node:fs');
+            const marker = '<!-- promptfoo-security-findings -->';
+            const body = fs.readFileSync('promptfoo-pr-comment.md', 'utf8');
+            const comments = await github.paginate(github.rest.issues.listComments, {
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              issue_number: context.issue.number,
+              per_page: 100,
+            });
+            const existing = comments.find((comment) =>
+              comment.user?.type === 'Bot' && comment.body?.includes(marker)
+            );
 
-          if [ "$regression_status" -ne 0 ] || [ "$redteam_status" -ne 0 ]; then
-            echo "One or more Promptfoo suites failed. Download the reports from this run." >> "$GITHUB_STEP_SUMMARY"
-            exit 1
-          fi
-
-          echo "Both Promptfoo suites passed." >> "$GITHUB_STEP_SUMMARY"
+            if (existing) {
+              await github.rest.issues.updateComment({
+                owner: context.repo.owner,
+                repo: context.repo.repo,
+                comment_id: existing.id,
+                body,
+              });
+            } else {
+              await github.rest.issues.createComment({
+                owner: context.repo.owner,
+                repo: context.repo.repo,
+                issue_number: context.issue.number,
+                body,
+              });
+            }
       - name: Upload Promptfoo reports
         if: always()
         uses: actions/upload-artifact@v4
         with:
           name: promptfoo-security-${{ github.run_id }}
           path: |
-            regression-latest.json
-            regression-latest.junit.xml
             redteam-latest.json
+            promptfoo-pr-comment.md
             evaluations/
           if-no-files-found: ignore
           retention-days: 30

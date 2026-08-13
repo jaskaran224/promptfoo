@@ -1,7 +1,7 @@
 import type { ModelMessage } from './policy.js';
 
 const API_URL = 'https://openrouter.ai/api/v1/chat/completions';
-export const DEFAULT_MODEL = 'google/gemma-4-26b-a4b-it:free';
+export const DEFAULT_MODEL = 'google/gemma-4-26b-a4b-it';
 
 interface OpenRouterResponse {
   choices?: Array<{ message?: { content?: string } }>;
