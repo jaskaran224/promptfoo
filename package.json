@@ -11,7 +11,8 @@
     "preregression": "npm run build && node -e \"require('node:fs').mkdirSync('evaluations', { recursive: true })\"",
     "regression": "promptfoo eval -c promptfooconfig.regression.yaml --remote --no-cache --output regression-latest.json --output regression-latest.junit.xml",
     "preredteam": "npm run build && node -e \"require('node:fs').mkdirSync('evaluations', { recursive: true })\"",
-    "redteam": "promptfoo redteam run -c promptfooconfig.redteam.yaml --remote --no-cache --output redteam-latest.json"
+    "redteam": "promptfoo redteam run -c promptfooconfig.redteam.yaml --remote --no-cache --output redteam-latest.json",
+    "report:pr": "node scripts/promptfoo-pr-comment.mjs regression-latest.json redteam-latest.json --output promptfoo-pr-comment.md"
   },
   "engines": {
     "node": ">=22.22.0"

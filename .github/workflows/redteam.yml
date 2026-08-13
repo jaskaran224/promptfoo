@@ -7,6 +7,7 @@ on:
 
 permissions:
   contents: read
+  pull-requests: write
 
 concurrency:
   group: promptfoo-pr-${{ github.event.pull_request.number }}
@@ -45,6 +46,44 @@ jobs:
           fi
 
           echo "Both Promptfoo suites passed." >> "$GITHUB_STEP_SUMMARY"
+      - name: Build detailed Promptfoo PR comment
+        if: always()
+        env:
+          PROMPTFOO_RUN_URL: ${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }}
+        run: npm run report:pr
+      - name: Create or update Promptfoo PR comment
+        if: always() && github.event.pull_request.head.repo.full_name == github.repository
+        uses: actions/github-script@v7
+        with:
+          script: |
+            const fs = require('node:fs');
+            const marker = '<!-- promptfoo-security-findings -->';
+            const body = fs.readFileSync('promptfoo-pr-comment.md', 'utf8');
+            const comments = await github.paginate(github.rest.issues.listComments, {
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              issue_number: context.issue.number,
+              per_page: 100,
+            });
+            const existing = comments.find((comment) =>
+              comment.user?.type === 'Bot' && comment.body?.includes(marker)
+            );
+
+            if (existing) {
+              await github.rest.issues.updateComment({
+                owner: context.repo.owner,
+                repo: context.repo.repo,
+                comment_id: existing.id,
+                body,
+              });
+            } else {
+              await github.rest.issues.createComment({
+                owner: context.repo.owner,
+                repo: context.repo.repo,
+                issue_number: context.issue.number,
+                body,
+              });
+            }
       - name: Upload Promptfoo reports
         if: always()
         uses: actions/upload-artifact@v4
@@ -54,6 +93,7 @@ jobs:
             regression-latest.json
             regression-latest.junit.xml
             redteam-latest.json
+            promptfoo-pr-comment.md
             evaluations/
           if-no-files-found: ignore
           retention-days: 30
