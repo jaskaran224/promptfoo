@@ -200,7 +200,7 @@ async function main() {
   const reportErrors = [];
 
   for (const reportPath of reportPaths) {
-    const suite = reportPath.toLowerCase().includes('redteam') ? 'Generated red-team suite' : 'Curated regression suite';
+    const suite = 'Promptfoo plugin red-team suite';
     try {
       const document = JSON.parse(await readFile(reportPath, 'utf8'));
       reports.push(extractReport(document, suite));

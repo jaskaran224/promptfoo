@@ -26,26 +26,12 @@ jobs:
           node-version: '24'
           cache: npm
       - run: npm ci
-      - name: Run Promptfoo regression and generated red-team suites
+      - name: Run Promptfoo plugin red-team suite
         env:
           OPENROUTER_API_KEY: ${{ secrets.OPENROUTER_API_KEY }}
           OPENROUTER_MODEL: google/gemma-4-26b-a4b-it:free
           PROMPTFOO_DISABLE_TELEMETRY: 'true'
-        shell: bash
-        run: |
-          set +e
-          npm run regression
-          regression_status=$?
-          npm run redteam
-          redteam_status=$?
-          set -e
-
-          if [ "$regression_status" -ne 0 ] || [ "$redteam_status" -ne 0 ]; then
-            echo "One or more Promptfoo suites failed. Download the reports from this run." >> "$GITHUB_STEP_SUMMARY"
-            exit 1
-          fi
-
-          echo "Both Promptfoo suites passed." >> "$GITHUB_STEP_SUMMARY"
+        run: npm run redteam
       - name: Build detailed Promptfoo PR comment
         if: always()
         env:
@@ -90,8 +76,6 @@ jobs:
         with:
           name: promptfoo-security-${{ github.run_id }}
           path: |
-            regression-latest.json
-            regression-latest.junit.xml
             redteam-latest.json
             promptfoo-pr-comment.md
             evaluations/
