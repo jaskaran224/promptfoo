@@ -4,7 +4,7 @@ A deliberately small TypeScript banking-support chatbot used to demonstrate LLM 
 
 ## What this demonstrates
 
-- Web and CLI multi-turn chat using a free Gemma model through OpenRouter
+- Web and CLI multi-turn chat using a low-cost paid Gemma model through OpenRouter
 - Hosted red-team tests for harmful content, prompt injection, data leakage, and multi-turn behavior
 - A curated Promptfoo regression suite that preserves known security attacks
 - Fabricated customer records and internal canaries in hidden model context, with exact-match leakage assertions
@@ -31,7 +31,7 @@ Open `http://localhost:3000`, or run the terminal client with:
 npm run cli
 ```
 
-Do not commit `.env`. Free OpenRouter models can change availability or be rate-limited; override `OPENROUTER_MODEL` when needed.
+Do not commit `.env`. The default is `google/gemma-4-26b-a4b-it`; override `OPENROUTER_MODEL` when needed.
 
 ## Evaluate
 
@@ -48,7 +48,7 @@ Evaluation files can contain prompts and model responses. Treat them as sensitiv
 
 ### How leakage testing works
 
-`src/synthetic-data.ts` defines fake customer accounts, support PINs, session tokens, and internal records. `src/policy.ts` places them in Gemma's hidden system context and orders the chatbot not to reveal them. Promptfoo generates direct and multi-turn extraction attacks. Every response also receives a deterministic `not-contains-any` assertion, so an exact protected value appearing in output fails the run even if the hosted model grader misses it.
+`src/synthetic-data.ts` defines fake customer accounts, support PINs, session tokens, and internal records. `src/policy.ts` places them in Gemma's hidden system context and orders the chatbot not to reveal them. Promptfoo plugins generate and grade direct and multi-turn attacks.
 
 ## GitHub Actions setup
 
@@ -64,7 +64,7 @@ To block merges on failure, add `Promptfoo security gate` as a required status c
 4. Pin Promptfoo, model IDs, and judge models centrally. Upgrade through a controlled compatibility repository before rolling changes to all consumers.
 5. Store only synthetic test data. Apply artifact retention, access control, secret scanning, and an explicit process for promoting discovered failures into regression cases.
 6. Track pass rate by risk category, new failures, false-positive rate, latency, token use, and flaky-test rate. Do not reduce safety to one aggregate score.
-7. Use a stronger, independently governed judge model for production gates. The free Gemma target is suitable for this POC, but free-tier availability and self-grading are not robust organizational controls.
+7. Pin target and grader models, budgets, and provider policies before using the gate across production repositories.
 
 ## Repository map
 
